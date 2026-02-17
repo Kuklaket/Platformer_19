@@ -5,7 +5,7 @@ public class GroundDetector : MonoBehaviour
 {
     [SerializeField] private float _groundCheckDistance = 1f;
     [SerializeField] private LayerMask _groundMask;
-    [SerializeField] private CharacterAnimator _characterAnimator;
+    [SerializeField] private PlayerAnimator _characterAnimator;
 
     private Rigidbody2D _rigidbody;
     private bool _isGrounded;

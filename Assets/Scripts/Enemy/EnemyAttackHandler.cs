@@ -1,67 +1,57 @@
 using System;
 using UnityEngine;
 
-public class EnemyAttackHandler : MonoBehaviour
+public class EnemyAttackHandler : AttackSystem
 {
-    [SerializeField] private Enemy _enemy;
-    [SerializeField] private PigAnimator _pigAnimator;
-    [SerializeField] private Collider2D _takeDamageCollider;
-    [SerializeField] private LayerMask _targetLayerMask = 8; 
+    [SerializeField] private Collider2D _attackTrigger;
 
-    private int _layerMaskNumber = 1;
+    private float _nextAttackTime;
+    private BattleEntity _currentTarget;
 
-    public event Action<BattleEntity, int> PlayerAttacked;
     public event Action AttackStarted;
 
-    private void Start()
+    protected override void Awake()
     {
-        if (_takeDamageCollider != null)
+        base.Awake();
+
+        if (_attackTrigger != null)
         {
-            _takeDamageCollider.isTrigger = true;
+            _attackTrigger.isTrigger = true;
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (((_layerMaskNumber << collision.gameObject.layer) & _targetLayerMask) != 0)
-        {           
-            if (collision.gameObject.TryGetComponent<Player>(out Player player))
-            {
-                TryAttack(player);
-            }
+        if (!IsInTargetLayer(collision.gameObject.layer)) return;
+
+        if (collision.TryGetComponent<BattleEntity>(out var target))
+        {
+            _currentTarget = target;
+            TryAttack(target);
         }
     }
 
-    private void TryAttack(Player player)
+    private void OnTriggerStay2D(Collider2D collision)
     {
-        if (_enemy == null)
-        {
+        if (!IsInTargetLayer(collision.gameObject.layer)) return;
+
+        if (OwnerStats != null && !OwnerStats.CanAttack)
             return;
-        }
 
-        if (_enemy.TryGetComponent<Stats>(out Stats stats))
+        if (collision.TryGetComponent<BattleEntity>(out var target))
         {
-            if (stats.CanAttack)
-            {
-                AttackHandler(player);
-                stats.StartAttackCooldown();
-            }
+            _currentTarget = target;
+            TryAttack(target);
         }
     }
 
-    private void AttackHandler(Player player)
+    private void TryAttack(BattleEntity target)
     {
-        if (player == null)
-        {
+        if (OwnerStats != null && !OwnerStats.CanAttack)
             return;
-        }
 
-        TakeDamage(player, _enemy.GetAttack());
-        _pigAnimator.PlayAttack();
-    }
-
-    private void TakeDamage(BattleEntity attackTarget, int damage)
-    {
-        attackTarget.HandlerDamage(damage);
+        AttackStarted?.Invoke();
+        StartAttack();
+        StartCoroutine(PerformAttack(target));
     }
 }

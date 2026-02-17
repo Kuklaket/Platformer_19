@@ -8,7 +8,7 @@ public class PlayerMover : MonoBehaviour
     [SerializeField] private Flipper _flipper;
     [SerializeField] private InputReader _inputReader;
     [SerializeField] private GroundDetector _groundDetector;
-    [SerializeField] private CharacterAnimator _characterAnimator;
+    [SerializeField] private PlayerAnimator _characterAnimator;
 
     private bool _isMoving = false;
 
@@ -18,7 +18,7 @@ public class PlayerMover : MonoBehaviour
     {
         _flipper = GetComponentInChildren<Flipper>();
         _groundDetector = GetComponent<GroundDetector>();
-        _characterAnimator = GetComponent<CharacterAnimator>();
+        _characterAnimator = GetComponent<PlayerAnimator>();
     }
 
     private void OnEnable()

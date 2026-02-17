@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class BattleEntity : MonoBehaviour
 {
+    public int Attack => CharacterStats.Attack;
+
     protected Stats CharacterStats { get; private set; }
     protected HealthSystem HealthSystem { get; private set; }
 
@@ -11,23 +13,18 @@ public class BattleEntity : MonoBehaviour
         HealthSystem = GetComponent<HealthSystem>();
     }
 
-    private void OnEnable()
+    protected virtual void OnEnable()
     {
         HealthSystem.Died += Die;
     }
-    private void OnDisable()
+    protected virtual void OnDisable()
     {
         HealthSystem.Died -= Die;
-    } 
-
-    public void HandlerDamage(int damageCount)
-    {
-        HealthSystem.GetDamage(damageCount);
     }
 
-    public int GetAttack()
+    public void HandleDamage(int damageCount)
     {
-        return CharacterStats.Attack;
+        HealthSystem.GetDamage(damageCount);
     }
 
     protected void Die()

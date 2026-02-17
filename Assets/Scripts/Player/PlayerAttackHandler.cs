@@ -1,21 +1,12 @@
 using System;
 using UnityEngine;
 
-public class PlayerAttackHandler: MonoBehaviour
+public class PlayerAttackHandler : AttackSystem
 {
-    [SerializeField] private InputReader _inputReader;
-    [SerializeField] private LayerMask _targetLayer;
-    [SerializeField] private Player _player;
-    [SerializeField] private CharacterAnimator _characterAnimator;
     [SerializeField] private RaycastHandler _raycastHandler;
-    [SerializeField] private float _hitDelay = 0.3f;
+    [SerializeField] private InputReader _inputReader;
 
-    public event Action<BattleEntity,int> EnemyAttacked;
-
-    private void Awake()
-    {
-        _characterAnimator = _player.GetComponent<CharacterAnimator>();
-    }
+    public event Action AttackStarted;
 
     private void OnEnable()
     {
@@ -27,37 +18,19 @@ public class PlayerAttackHandler: MonoBehaviour
         _inputReader.AttackPressed -= AttemptAttack;
     }
 
-    private void AttemptAttack()
+    public void AttemptAttack()
     {
-        if (_player.TryGetComponent<Stats>(out Stats stats))
-        {
-            if (stats.CanAttack)
-            {
-                stats.StartAttackCooldown();
-                ExecuteAttack();
-            }
-        }
-    } 
+        if (OwnerStats != null && !OwnerStats.CanAttack)
+            return;
 
-    private void ExecuteAttack()
-    {
-        _characterAnimator?.PlayAttack();
+        StartAttack();
+        AttackStarted?.Invoke();
 
-        Invoke(nameof(HitEnemy), _hitDelay);
-    }
-    private void HitEnemy()
-    {
         Vector2 direction = transform.right;
 
-        if (_raycastHandler.CheckRayHit(direction, _targetLayer, out BattleEntity enemy))
+        if (_raycastHandler.CheckRayHit(direction, TargetLayerMask, out BattleEntity target))
         {
-            TakeDamage(enemy, _player.GetAttack());
+            StartCoroutine(PerformAttack(target));
         }
-    }
-
-    private void TakeDamage(BattleEntity attackTarget, int damage)
-    {
-        attackTarget.HandlerDamage(damage);
-        EnemyAttacked?.Invoke(attackTarget, damage);
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class RaycastHandler : MonoBehaviour
 {
-    [SerializeField] private float _rayDistance;
+    [SerializeField] private float _rayDistance = 2f;
 
     public bool CheckRayHit(Vector2 direction, LayerMask targetLayer, out BattleEntity battleEntity)
     {
