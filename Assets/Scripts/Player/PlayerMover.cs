@@ -44,11 +44,11 @@ public class PlayerMover : MonoBehaviour
     public void HandleMoveInput(float horizontalInput)
     {
         Move(horizontalInput);
-        CheckMovement(horizontalInput);
+        UpdateMovementState(horizontalInput);
         _flipper.SetDirection(horizontalInput);
     }
 
-    public void CheckMovement(float speed)
+    public void UpdateMovementState(float speed)
     {
         bool wasMoved = _isMoving;
         _isMoving = Mathf.Abs(speed) > 0;
