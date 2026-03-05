@@ -7,6 +7,8 @@ public class Attacker : MonoBehaviour
     [SerializeField] private LayerMask _targetLayerMask;
     [SerializeField] private float _damageDelay = 0.3f;
 
+    private int _singleBit = 1;
+
     public IAttacker Owner { get; set; }
     public LayerMask TargetLayerMask => _targetLayerMask;
 
@@ -23,13 +25,14 @@ public class Attacker : MonoBehaviour
     public void DealDamage(IDamageable target)
     {
         int damage = Owner.Damage;
+
         target.TakeDamage(damage);
         AttackLanded?.Invoke(target, damage);
     }
 
     public bool IsInTargetLayer(int layer)
     {
-        bool result = (TargetLayerMask.value & (1 << layer)) != 0;
+        bool result = (TargetLayerMask.value & (_singleBit << layer)) != 0;
 
         return result;
     }
